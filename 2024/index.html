@@ -1,0 +1,221 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>" />
+<title>Лабиринт клипов КуроМур — 2024</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: #0b0d10; color: #e8e8ee; overflow: hidden;
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  #crosshair {
+    position: fixed; left: 50%; top: 50%; width: 6px; height: 6px;
+    margin: -3px 0 0 -3px; border-radius: 50%;
+    background: rgba(255,255,255,.7); mix-blend-mode: difference; pointer-events: none;
+  }
+
+  .hud {
+    position: fixed; z-index: 5; padding: 8px 12px; font-size: 13px; line-height: 1.5;
+    background: rgba(10,12,16,.62); border: 1px solid rgba(255,255,255,.14);
+    border-radius: 10px; backdrop-filter: blur(4px); pointer-events: none;
+    font-variant-numeric: tabular-nums;
+  }
+  #vol-hud { left: 14px; bottom: 14px; }
+  #hint-hud { right: 14px; top: 14px; opacity: .85; }
+  /* на телефонах WASD-подсказки и десктопный HUD громкости не нужны */
+  @media (pointer: coarse) {
+    #hint-hud { display: none; }
+    #vol-hud { display: none; } /* регулировка звука — через панель 🔊 */
+  }
+  #player-badge { left: 14px; top: 14px; display: flex; align-items: center; gap: 8px; }
+  #player-badge .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #7fd1a8; box-shadow: 0 0 8px rgba(127,209,168,.8);
+  }
+  #minimap {
+    position: fixed; right: 14px; bottom: 14px; z-index: 5;
+    border: 2px solid rgba(255,158,192,.8); border-radius: 10px;
+    background: rgba(20,14,24,.78); box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  /* на телефонах миникарта меньше и полупрозрачнее (кнопка 🗺️ открывает большую) */
+  @media (pointer: coarse) {
+    #minimap { transform: scale(.62); transform-origin: bottom right; opacity: .72; }
+    .tx-btns { bottom: 14px; }
+  }
+  #bigmap {
+    position: fixed; inset: 0; z-index: 15;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(10,7,14,.55);
+  }
+  #bigmap canvas {
+    /* карта вписывается в экран: на телефоне 540×630 ужимается с сохранением пропорций */
+    width: auto; height: auto;
+    max-width: min(92vw, 540px);
+    max-height: 86vh;
+    border: 3px solid #ff9ec0; border-radius: 14px;
+    background: rgba(20,14,24,.92); box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  #mp-note {
+    left: 50%; bottom: 14px; transform: translateX(-50%);
+    color: #ffb3cd; border-color: rgba(255,158,192,.5);
+  }
+  /* мобильные правки mp-note — строго ПОСЛЕ базового правила (источник выше перетирается) */
+  @media (pointer: coarse) {
+    #mp-note {
+      /* компактная плашка слева сверху под бейджем имени — обзор по центру не перекрывает */
+      top: 58px; bottom: auto; left: 14px; right: auto;
+      transform: none; max-width: 60vw;
+      padding: 4px 8px; font-size: 11px; opacity: .9;
+    }
+  }
+
+  /* --- сенсорное управление (виден только на телефоне, под оверлеем) --- */
+  #touch-ui { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
+  #touch-ui canvas { touch-action: none; }
+  #joy-zone {
+    position: absolute; left: 0; bottom: 0; width: 32%; height: 58%;
+    pointer-events: auto; touch-action: none;
+  }
+  #joy-base {
+    position: fixed; width: 140px; height: 140px; border-radius: 50%;
+    background: rgba(255,158,192,.14); border: 2px solid rgba(255,158,192,.55);
+    pointer-events: none;
+  }
+  #joy-stick {
+    position: absolute; left: 50%; top: 50%; width: 58px; height: 58px;
+    margin: -29px 0 0 -29px; border-radius: 50%;
+    background: rgba(255,216,232,.85); box-shadow: 0 0 14px rgba(255,158,192,.6);
+  }
+  #joy-base.tx-hidden { visibility: hidden; }
+  .tx-btns {
+    position: absolute; right: 14px; bottom: 244px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .tx-btn {
+    width: 62px; height: 62px; border-radius: 50%;
+    font-size: 26px; line-height: 1;
+    color: #ffd8e8; background: rgba(20,14,28,.8);
+    border: 2px solid rgba(255,158,192,.6);
+    pointer-events: auto; touch-action: manipulation;
+  }
+  .tx-btn:active { background: rgba(255,158,192,.35); }
+  /* всплывающая панель громкости (телефон) */
+  #vol-panel {
+    position: absolute; right: 88px; bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 24px;
+    color: #ffd8e8; font-size: 14px;
+    background: rgba(20,14,28,.86);
+    border: 2px solid rgba(255,158,192,.6);
+    pointer-events: auto;
+  }
+  #vol-panel.tx-hidden { visibility: hidden; }
+  #vol-range { width: 130px; accent-color: #ff9ec0; }
+  @media (pointer: fine) { #touch-ui { display: none; } }
+
+  #overlay {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 700px at 50% 35%, #1a2027 0%, #0b0d10 75%);
+  }
+  .panel {
+    width: min(92vw, 560px); padding: 28px 30px;
+    background: rgba(13,16,20,.92); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  }
+  .panel h1 { margin: 0 0 6px; font-size: 26px; }
+  .sub { color: #9aa3ad; font-size: 14px; margin: 0 0 18px; }
+  .keys {
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 14px;
+    font-size: 14px; margin: 0 0 18px; align-items: center;
+  }
+  .keys b {
+    background: #1c222a; border: 1px solid #2b323c; padding: 2px 8px;
+    border-radius: 6px; font-size: 12.5px; text-align: center; white-space: nowrap;
+  }
+  .name-row {
+    display: flex; gap: 8px; margin: 0 0 18px; align-items: center;
+  }
+  .name-row label {
+    font-size: 14px; color: #9aa3ad; white-space: nowrap;
+  }
+  .name-row input {
+    flex: 1; padding: 10px 14px; font-size: 15px;
+    background: #1c222a; color: #e8e8ee;
+    border: 1px solid #2b323c; border-radius: 10px; outline: none;
+  }
+  .name-row input:focus { border-color: #ff9ec0; }
+  .name-row input.err { border-color: #e05a5a; }
+  #bar { height: 8px; border-radius: 99px; background: #23282f; overflow: hidden; margin: 6px 0 10px; }
+  #bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #4d8df0, #7fd1a8); transition: width .2s; }
+  #status { color: #9aa3ad; font-size: 13px; min-height: 18px; margin-bottom: 14px; }
+  #btn-start {
+    display: block; width: 100%; padding: 12px 16px;
+    font-size: 15px; font-weight: 600; color: #0b0d10;
+    background: #e8c15a; border: 0; border-radius: 10px; cursor: pointer;
+  }
+  #btn-start:hover { background: #f4ce6b; }
+  #btn-start:disabled { opacity: .55; cursor: default; }
+  /* в паузе «Продолжить» и «вернуться на основной сайт» стоят в ряд */
+  .btnrow { display: flex; gap: 10px; }
+  .btnrow #btn-start { flex: 1 1 auto; }
+  #btn-main {
+    padding: 12px 16px; font-size: 13.5px; color: #9aa3ad;
+    background: #1c222a; border: 1px solid #2b323c; border-radius: 10px;
+    cursor: pointer; touch-action: manipulation;
+  }
+  #btn-main:hover { color: #e8e8ee; border-color: #ff9ec0; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="crosshair" class="hidden"></div>
+<div id="player-badge" class="hud hidden"><span class="dot"></span><span id="player-name"></span></div>
+<div id="vol-hud" class="hud hidden">🔊 громкость 60%</div>
+<div id="hint-hud" class="hud hidden">WASD — ходить · мышь — осматриваться · клик — смотреть видео · E — взрыв конфетти · M — карта · Колесо мыши - регулировка громкости · Esc — пауза</div>
+<canvas id="minimap" class="hidden" width="190" height="190"></canvas>
+<div id="bigmap" class="hidden"><canvas id="bigmap-canvas" width="560" height="560"></canvas></div>
+<div id="mp-note" class="hud hidden">Игроков рядом: <span id="mp-count">0</span></div>
+
+<div id="overlay">
+  <div class="panel">
+    <h1 id="ov-title">Лабиринт клипов 2024</h1>
+    <p class="sub" id="ov-sub">Один длинный коридор с поворотами — без тупиков и петель:
+      дойдёшь до конца и снова окажешься у начала. Кликните по картине, чтобы включить видео
+      со звуком; позади входа кнопки перехода в коридоры других лет.</p>
+    <div class="name-row">
+      <label for="username">Ваше имя:</label>
+      <input id="username" maxlength="32" placeholder="Мур" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="keys">
+      <b>W A S D</b><span>перемещение по комнате</span>
+      <b>Мышь</b><span>осмотреться</span>
+      <b>Клик</b><span>запустить/остановить видео (по прицелу)</span>
+      <b>E</b><span>взрыв конфетти</span>
+      <b>M</b><span>карта лабиринта</span>
+      <b>Колесо мыши</b><span>громкость всей программы</span>
+      <b>Esc</b><span>пауза / вернуть курсор</span>
+    </div>
+    <div id="bar"><div id="bar-fill"></div></div>
+    <div id="status">Подготовка…</div>
+    <div class="btnrow">
+      <button id="btn-start">Войти</button>
+      <button id="btn-main" class="hidden">вернуться на основной сайт</button>
+    </div>
+    <div id="status"> <br></br><br></br><br></br><br></br>Проект вдохновлён деятельностью @ivan_lolka</div>
+  </div>
+</div>
+
+<!-- MQTT.js: публичный брокер как релей мультиплеера (замена /mp и PeerJS). Фолбэк на unpkg -->
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.16.1/dist/mqtt.min.js"
+        onerror="this.onerror=null;this.src='https://unpkg.com/mqtt@5.16.1/dist/mqtt.min.js'"></script>
+<script type="module" src="js/app.js?v=corridor2"></script>
+</body>
+</html>
