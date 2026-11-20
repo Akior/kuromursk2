@@ -1,0 +1,82 @@
+{
+  "cat_midnight": {
+    "frameW": 30,
+    "frameH": 32,
+    "frames": 6
+  },
+  "cat_smoky": {
+    "frameW": 45,
+    "frameH": 29,
+    "frames": 21
+  },
+  "cat_pepper": {
+    "frameW": 50,
+    "frameH": 32,
+    "frames": 12
+  },
+  "cat_ember": {
+    "frameW": 28,
+    "frameH": 24,
+    "frames": 48
+  },
+  "cat_pudding": {
+    "frameW": 31,
+    "frameH": 24,
+    "frames": 8
+  },
+  "cat_toro": {
+    "frameW": 25,
+    "frameH": 25,
+    "frames": 17
+  },
+  "cat_roll": {
+    "frameW": 20,
+    "frameH": 20,
+    "frames": 24
+  },
+  "cat_achan": {
+    "frameW": 21,
+    "frameH": 25,
+    "frames": 16
+  },
+  "cat_balloon": {
+    "frameW": 26,
+    "frameH": 50,
+    "frames": 12
+  },
+  "cat_chase": {
+    "frameW": 46,
+    "frameH": 27,
+    "frames": 12
+  },
+  "cat_mewo": {
+    "frameW": 52,
+    "frameH": 32,
+    "frames": 3
+  },
+  "cat_pusheen": {
+    "frameW": 26,
+    "frameH": 36,
+    "frames": 12
+  },
+  "cat_kuromi": {
+    "frameW": 26,
+    "frameH": 29,
+    "frames": 24
+  },
+  "cat_pixelkitty": {
+    "frameW": 43,
+    "frameH": 28,
+    "frames": 12
+  },
+  "cat_spinning": {
+    "frameW": 58,
+    "frameH": 59,
+    "frames": 48
+  },
+  "cat_blu": {
+    "frameW": 36,
+    "frameH": 50,
+    "frames": 7
+  }
+}

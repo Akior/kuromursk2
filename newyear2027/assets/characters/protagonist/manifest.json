@@ -1,0 +1,104 @@
+{
+  "image": "protagonist.png",
+  "atlas": "protagonist.json",
+  "targetHeight": 48,
+  "scale": 0.2595,
+  "animations": {
+    "idle": {
+      "frames": [
+        "idle_0",
+        "idle_1",
+        "idle_2",
+        "idle_3",
+        "idle_4"
+      ],
+      "fps": 6,
+      "repeat": -1
+    },
+    "happy": {
+      "frames": [
+        "happy_0",
+        "happy_1",
+        "happy_2",
+        "happy_3",
+        "happy_4"
+      ],
+      "fps": 8,
+      "repeat": 0
+    },
+    "walk_down": {
+      "frames": [
+        "walk_down_0",
+        "walk_down_1",
+        "walk_down_2",
+        "walk_down_3",
+        "walk_down_4"
+      ],
+      "fps": 8,
+      "repeat": -1
+    },
+    "walk_up": {
+      "frames": [
+        "walk_up_0",
+        "walk_up_1",
+        "walk_up_2",
+        "walk_up_3"
+      ],
+      "fps": 8,
+      "repeat": -1
+    },
+    "walk_left": {
+      "frames": [
+        "walk_left_0",
+        "walk_left_1",
+        "walk_left_2",
+        "walk_left_3"
+      ],
+      "fps": 8,
+      "repeat": -1
+    },
+    "walk_right": {
+      "frames": [
+        "walk_right_0",
+        "walk_right_1",
+        "walk_right_2",
+        "walk_right_3"
+      ],
+      "fps": 8,
+      "repeat": -1
+    },
+    "dig": {
+      "frames": [
+        "dig_0",
+        "dig_1",
+        "dig_2",
+        "dig_3",
+        "dig_4"
+      ],
+      "fps": 10,
+      "repeat": 0
+    },
+    "interact": {
+      "frames": [
+        "interact_0",
+        "interact_1",
+        "interact_2",
+        "interact_3",
+        "interact_4"
+      ],
+      "fps": 6,
+      "repeat": 0
+    },
+    "bonus": {
+      "frames": [
+        "bonus_0",
+        "bonus_1",
+        "bonus_2",
+        "bonus_3",
+        "bonus_4"
+      ],
+      "fps": 6,
+      "repeat": 0
+    }
+  }
+}
